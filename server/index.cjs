@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const { pool, ensureSchema } = require("./db");
+const { pool, ensureSchema } = require("./db.cjs");
 
 const PORT = process.env.PORT || 3000;
 const SALT = "NORTH_SALT_2026";
