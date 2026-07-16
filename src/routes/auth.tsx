@@ -1,7 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { usernameToEmail } from "@/hooks/useAuth";
 import logo from "@/assets/north-logo.png";
 
 export const Route = createFileRoute("/auth")({
@@ -24,23 +22,27 @@ function AuthPage() {
       const u = username.trim();
       if (u.length < 3) throw new Error("الاسم يجب أن يكون 3 أحرف فأكثر.");
       if (password.length < 6) throw new Error("كلمة المرور 6 أحرف فأكثر.");
-      const email = usernameToEmail(u);
 
-      if (mode === "signup") {
-        // check unique username
-        const { data: exists } = await supabase.from("profiles").select("id").eq("username", u).maybeSingle();
-        if (exists) throw new Error("الاسم مستخدم — اختر اسماً مختلفاً حتى لا يدخل أحد على بياناتك.");
+     const res = await fetch(
+  mode === "signin" ? "/api/auth/login" : "/api/auth/signup",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      username: u,
+      password,
+    }),
+  }
+);
 
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { username: u, display_name: u }, emailRedirectTo: window.location.origin },
-        });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw new Error("اسم أو كلمة مرور غير صحيحة.");
-      }
+const data = await res.json();
+
+if (!res.ok) {
+  throw new Error(data.error || "حدث خطأ");
+}
       nav({ to: "/" });
     } catch (e: any) {
       setErr(e.message);
