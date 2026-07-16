@@ -107,11 +107,21 @@ app.post("/api/auth/signup", async (req, res) => {
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
+console.log("BODY:", req.body);
+console.log("USERNAME:", username);
+console.log("PASSWORD:", password);
+    console.log("BODY:", req.body);
+
     const u = (username || "").trim();
+
     const { rows } = await pool.query(
       `SELECT id, username, display_name, password_hash FROM users WHERE username = $1`,
       [u]
     );
+
+    console.log("DB:", rows[0]);
+    console.log("INPUT HASH:", hashPassword(password || ""));
+    console.log("DB HASH:", rows[0]?.password_hash);
     const row = rows[0];
     if (!row || row.password_hash !== hashPassword(password || "")) {
       return res.status(401).json({ error: "اسم أو كلمة مرور غير صحيحة." });
