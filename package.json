@@ -9,6 +9,7 @@
     "dev": "vite dev",
     "dev:server": "node server/index.cjs",
     "build": "vite build",
+    "build:dev": "vite build --mode development",
     "start": "node server/index.cjs",
     "preview": "vite preview"
   },
